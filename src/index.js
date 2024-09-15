@@ -1,4 +1,15 @@
 const express = require('express');
+const admin = require('firebase-admin');
+
+// Decode the base64 key from the environment variable
+const firebaseKey = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_KEY, 'base64').toString('utf-8');
+
+// Initialize Firebase Admin
+admin.initializeApp({
+  credential: admin.credential.cert(JSON.parse(firebaseKey)),
+  databaseURL: "https://noamcompetition-default-rtdb.firebaseio.com"
+});
+
 const http = require('http');
 const WebSocket = require('ws');
 
