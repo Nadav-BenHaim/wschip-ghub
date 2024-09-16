@@ -18,32 +18,20 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws) => {
-  console.log('Client connected');
+  console.log('Client connected via WebSocket');
 
   ws.on('message', (message) => {
-    // Parse the incoming JSON
-    const { questionId, answer } = JSON.parse(message);
-    
-    // Check answer against Firebase
-    admin.database().ref(`/QuestionsT/${questionId}/correctAnswer`).once('value')
-      .then(snapshot => {
-        const correctAnswer = snapshot.val();
-        let result;
+    const { action, message: logMessage } = JSON.parse(message);
 
-        // Check if the answer is correct
-        if (answer.trim().toLowerCase() === correctAnswer.trim().toLowerCase()) {
-          result = 'Correct answer!';
-        } else {
-          result = 'Incorrect answer!';
+    if (action === 'print_log') {
+      console.log('Command from website:', logMessage);
+      // Broadcast the command to the ESP32 (assuming ESP32 is also connected)
+      wss.clients.forEach(client => {
+        if (client !== ws && client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({ action: 'print_log', message: logMessage }));
         }
-
-        // Send result back to the ESP32
-        ws.send(result);
-      })
-      .catch(error => {
-        console.error('Error fetching answer:', error);
-        ws.send('Error checking answer');
       });
+    }
   });
 
   ws.on('close', () => {
