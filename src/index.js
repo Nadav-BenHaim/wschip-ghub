@@ -22,6 +22,7 @@ wss.on('connection', (ws) => {
 
   ws.on('message', (message) => {
     const { action, message: logMessage } = JSON.parse(message);
+    console.log('Got a message');
 
     if (action === 'print_log') {
       console.log('Command from website:', logMessage);
