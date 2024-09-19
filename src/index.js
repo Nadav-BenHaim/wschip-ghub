@@ -55,10 +55,14 @@ wss.on('connection', (ws) => {
             // Compare the received tag ID with the correct answer
             let isCorrect = tagID === correctAnswer;
             // Send a response back to the ESP32 with the result
-            socket.send(JSON.stringify({
-              command: 'answer_result',
-              correct: isCorrect
-            }));
+            wss.clients.forEach(client => {
+                if (client !== ws && client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({ 
+                        command: 'answer_result',
+                        correct: isCorrect 
+                    }));
+                }
+            });
             if (isCorrect) {
               console.log('Correct answer!');
             } else {
