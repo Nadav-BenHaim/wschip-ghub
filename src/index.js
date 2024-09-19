@@ -21,18 +21,33 @@ wss.on('connection', (ws) => {
   console.log('Client connected via WebSocket');
 
   ws.on('message', (message) => {
-    const { action, message: logMessage } = JSON.parse(message);
+    const { command, message: logMessage } = JSON.parse(message);
     console.log('Got a message');
-
-    if (action === 'print_log') {
-      console.log('Command from website:', logMessage);
-      // Broadcast the command to the ESP32 (assuming ESP32 is also connected)
-      wss.clients.forEach(client => {
-        if (client !== ws && client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify({ action: 'print_log', message: logMessage }));
-        }
-      });
+    
+    switch(command){
+        case 'print_log':
+            console.log('Command from website:', logMessage);
+            // Broadcast the command to the ESP32 (assuming ESP32 is also connected)
+            wss.clients.forEach(client => {
+                if (client !== ws && client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({ command: 'print_log', message: logMessage }));
+                }
+            });
+            break;
+        case 'start_input':
+            console.log('Forwarding command to start device input mode');
+            // Broadcast the command to the ESP32 (assuming ESP32 is also connected)
+            wss.clients.forEach(client => {
+                if (client !== ws && client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({ command: 'start_input', message: logMessage }));
+                }
+            });
+            break;
+        default:
+            console.log('Command not recognized. Message:', logMessage);
+            break;
     }
+
   });
 
   ws.on('close', () => {
