@@ -21,12 +21,13 @@ const wss = new WebSocket.Server({ server });
 let esp32Socket = null;
 let websiteSocket = null;
 
+ // For simplicity, let's say the current correct answer is stored here
+ let correctAnswer = 'a12345';  // The correct RFID tag ID for the current question
+
 wss.on('connection', (ws) => {
   console.log('Client connected via WebSocket');
     
-  // For simplicity, let's say the current correct answer is stored here
-  let correctAnswer = 'a12345';  // The correct RFID tag ID for the current question
-
+ 
   ws.on('message', (message) => {
     //const { command, message: logMessage } = JSON.parse(message);
     const data = JSON.parse(message);  // Parse the incoming WebSocket message
