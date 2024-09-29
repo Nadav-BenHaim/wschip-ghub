@@ -26,11 +26,11 @@ let websiteSocket = null;
 wss.on('connection', (ws) => {
   console.log('Client connected via WebSocket');
 
-  // const ping = setInterval(() => {
-  //   if (socket.readyState === socket.OPEN) {
-  //     socket.send(JSON.stringify({ type: 'ping' }));
-  //   }
-  // }, pingInterval);
+  const ping = setInterval(() => {
+    if (socket.readyState === socket.OPEN) {
+      socket.send(JSON.stringify({ type: 'ping' }));
+    }
+  }, pingInterval);
 
   // For simplicity, let's say the current correct answer is stored here
   let correctAnswer = 'a12345';  // The correct RFID tag ID for the current question
