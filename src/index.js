@@ -32,13 +32,30 @@ wss.on('connection', (ws) => {
     const data = JSON.parse(message);  // Parse the incoming WebSocket message
     console.log('Got a message');
     
-    
+    // Identify the type of client (ESP32 or website)
+    if (data.type === 'esp32') {
+      esp32Socket = ws;
+      console.log('ESP32 connected.');
+
+    } else if (data.type === 'website') {
+      websiteSocket = ws;
+      console.log('Website connected.');
+    }
+
     // After identification, handle other messages (e.g., answer checking)
     handleMessages(ws, data);
   });
 
+  // Reconnection logic if a client disconnects
   ws.on('close', () => {
-    console.log('Client disconnected');
+    if (ws === esp32Socket) {
+      console.log('ESP32 disconnected.');
+      esp32Socket = null; // Clear the reference so it can reconnect
+    }
+    if (ws === websiteSocket) {
+      console.log('Website disconnected.');
+      websiteSocket = null; // Clear the reference so it can reconnect
+    }
   });
 });
 
