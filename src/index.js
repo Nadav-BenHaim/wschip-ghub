@@ -17,6 +17,10 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+// Store client connections
+let esp32Socket = null;
+let websiteSocket = null;
+
 wss.on('connection', (ws) => {
   console.log('Client connected via WebSocket');
     
@@ -80,6 +84,10 @@ wss.on('connection', (ws) => {
     console.log('Client disconnected');
   });
 });
+
+function handleMessages(socket, data){
+
+}
 
 app.get('/', (req, res) => {
   res.send('WebSocket server is running');
