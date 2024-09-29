@@ -32,52 +32,9 @@ wss.on('connection', (ws) => {
     const data = JSON.parse(message);  // Parse the incoming WebSocket message
     console.log('Got a message');
     
-    switch(data.command){
-        case 'print_log':
-            console.log('Command from website:', data.message);
-            // Broadcast the command to the ESP32 (assuming ESP32 is also connected)
-            wss.clients.forEach(client => {
-                if (client !== ws && client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify({ command: 'print_log', message: data.message }));
-                }
-            });
-            break;
-        case 'start_input':
-            console.log('Forwarding command to start device input mode');
-            // Broadcast the command to the ESP32 (assuming ESP32 is also connected)
-            wss.clients.forEach(client => {
-                if (client !== ws && client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify({ command: 'start_input', message: data.message }));
-                }
-            });
-            break;
-        case 'check_answer':
-            // Extract tag_id from the message
-            const tagID = data.tag_id;
-            console.log('Received tag ID from ESP32:', tagID);
-
-            // Compare the received tag ID with the correct answer
-            let isCorrect = tagID === correctAnswer;
-            // Send a response back to the ESP32 with the result
-            wss.clients.forEach(client => {
-                if (client !== ws && client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify({ 
-                        command: 'answer_result',
-                        correct: isCorrect 
-                    }));
-                }
-            });
-            if (isCorrect) {
-              console.log('Correct answer!');
-            } else {
-              console.log('Wrong answer.');
-            }
-            break;
-        default:
-            console.log('Unknown command:', data.command);
-            break;
-    }
-
+    
+    // After identification, handle other messages (e.g., answer checking)
+    handleMessages(ws, data);
   });
 
   ws.on('close', () => {
@@ -86,7 +43,51 @@ wss.on('connection', (ws) => {
 });
 
 function handleMessages(socket, data){
+  switch(data.command){
+    case 'print_log':
+        console.log('Command from website:', data.message);
+        // Broadcast the command to the ESP32 (assuming ESP32 is also connected)
+        wss.clients.forEach(client => {
+            if (client !== ws && client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({ command: 'print_log', message: data.message }));
+            }
+        });
+        break;
+    case 'start_input':
+        console.log('Forwarding command to start device input mode');
+        // Broadcast the command to the ESP32 (assuming ESP32 is also connected)
+        wss.clients.forEach(client => {
+            if (client !== ws && client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({ command: 'start_input', message: data.message }));
+            }
+        });
+        break;
+    case 'check_answer':
+        // Extract tag_id from the message
+        const tagID = data.tag_id;
+        console.log('Received tag ID from ESP32:', tagID);
 
+        // Compare the received tag ID with the correct answer
+        let isCorrect = tagID === correctAnswer;
+        // Send a response back to the ESP32 with the result
+        wss.clients.forEach(client => {
+            if (client !== ws && client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({ 
+                    command: 'answer_result',
+                    correct: isCorrect 
+                }));
+            }
+        });
+        if (isCorrect) {
+          console.log('Correct answer!');
+        } else {
+          console.log('Wrong answer.');
+        }
+        break;
+    default:
+        console.log('Unknown command:', data.command);
+        break;
+  }
 }
 
 app.get('/', (req, res) => {
