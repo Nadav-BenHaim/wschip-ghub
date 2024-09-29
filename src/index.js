@@ -65,7 +65,7 @@ function handleMessages(socket, data){
         console.log('Command from website:', data.message);
         // Broadcast the command to the ESP32 (assuming ESP32 is also connected)
         wss.clients.forEach(client => {
-            if (client !== ws && client.readyState === WebSocket.OPEN) {
+            if (client !== socket && client.readyState === WebSocket.OPEN) {
                 client.send(JSON.stringify({ command: 'print_log', message: data.message }));
             }
         });
@@ -74,7 +74,7 @@ function handleMessages(socket, data){
         console.log('Forwarding command to start device input mode');
         // Broadcast the command to the ESP32 (assuming ESP32 is also connected)
         wss.clients.forEach(client => {
-            if (client !== ws && client.readyState === WebSocket.OPEN) {
+            if (client !== socket && client.readyState === WebSocket.OPEN) {
                 client.send(JSON.stringify({ command: 'start_input', message: data.message }));
             }
         });
@@ -88,7 +88,7 @@ function handleMessages(socket, data){
         let isCorrect = tagID === correctAnswer;
         // Send a response back to the ESP32 with the result
         wss.clients.forEach(client => {
-            if (client !== ws && client.readyState === WebSocket.OPEN) {
+            if (client.readyState === WebSocket.OPEN) {
                 client.send(JSON.stringify({ 
                     command: 'answer_result',
                     correct: isCorrect 
