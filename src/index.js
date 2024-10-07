@@ -31,8 +31,8 @@ wss.on('connection', (ws) => {
   ws.on('message', (message) => {
     //const { command, message: logMessage } = JSON.parse(message);
     const data = JSON.parse(message);  // Parse the incoming WebSocket message
-    console.log('Got a message');
-    
+    console.log('Got a message:');
+    console.log(message);
     // Identify the type of client (ESP32 or website)
     if (data.type === 'esp32') {
       esp32Socket = ws;
