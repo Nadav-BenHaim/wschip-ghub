@@ -102,6 +102,16 @@ function handleMessages(socket, data){
           console.log('Wrong answer.');
         }
         break;
+    case 'select_question':
+      // TODO: provide feedback to website
+      if (esp32Socket && esp32Socket.readyState === WebSocket.OPEN){
+        console.log('Forwarding command to start device input mode');
+        correctAnswer = data.correctAnswer;
+        esp32Socket.send(JSON.stringify({ command: 'start_input', message: data.message }));
+      } else {
+        console.log('Tiki device not found!');
+      }   
+        break;
     default:
         console.log('Unknown command:', data.command);
         break;
