@@ -93,6 +93,9 @@ function handleMessages(socket, data){
             command: 'answer_result',
             correct: isCorrect 
           }));
+          console.log('sent to esp32.');
+        } else {
+          console.log('esp32 closed.');
         }
         // Report result back to website
         if (websiteSocket && websiteSocket.readyState === WebSocket.OPEN){
@@ -100,6 +103,9 @@ function handleMessages(socket, data){
             type: 'answer_result',
             correct: isCorrect 
           }));
+          console.log('sent to website.');
+        } else {
+          console.log('website closed.');
         }
         if (isCorrect) {
           console.log('Correct answer!');
