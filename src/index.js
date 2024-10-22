@@ -101,7 +101,8 @@ function handleMessages(socket, data){
         if (websiteSocket && websiteSocket.readyState === WebSocket.OPEN){
           websiteSocket.send(JSON.stringify({ 
             type: 'answer_result',
-            correct: isCorrect 
+            correct: isCorrect, 
+            data: "dummy"
           }));
           console.log('sent to website.');
         } else {
