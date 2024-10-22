@@ -88,14 +88,19 @@ function handleMessages(socket, data){
         // Compare the received tag ID with the correct answer
         let isCorrect = tagID === correctAnswer;
         // Send a response back to the ESP32 with the result
-        wss.clients.forEach(client => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify({ 
-                    command: 'answer_result',
-                    correct: isCorrect 
-                }));
-            }
-        });
+        if (esp32Socket && esp32Socket.readyState === WebSocket.OPEN){
+          esp32Socket.send(JSON.stringify({ 
+            command: 'answer_result',
+            correct: isCorrect 
+          }));
+        }
+        // Report result back to website
+        if (websiteSocket && websiteSocket.readyState === WebSocket.OPEN){
+          websiteSocket.send(JSON.stringify({ 
+            type: 'answer_result',
+            correct: isCorrect 
+          }));
+        }
         if (isCorrect) {
           console.log('Correct answer!');
         } else {
