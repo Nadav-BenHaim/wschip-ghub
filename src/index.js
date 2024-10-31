@@ -123,7 +123,7 @@ function handleMessages(socket, data){
           websiteSocket.send(JSON.stringify({ 
             type: 'answer_result',
             correct: isCorrect, 
-            data: "dummy",
+            data: tagID,
             answer: tagID
           }));
           console.log('sent to website.');
