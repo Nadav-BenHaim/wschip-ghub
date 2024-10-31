@@ -29,10 +29,19 @@ let websiteSocket = null;
  let questionWasSent = false;
  let cuurentQuestionData;
 
+ // Interval for sending a ping (in milliseconds)
+const pingInterval = 50000;  // 50 seconds
+
 wss.on('connection', (ws) => {
   console.log('Client connected via WebSocket');
     
- 
+  // Send a ping to each connected client periodically
+  const pingIntervalId = setInterval(() => {
+    if (ws.readyState === ws.OPEN) {
+      ws.send(JSON.stringify({ type: "ping" }));
+    }
+  }, pingInterval);
+
   ws.on('message', (message) => {
     //const { command, message: logMessage } = JSON.parse(message);
     const data = JSON.parse(message);  // Parse the incoming WebSocket message
@@ -65,6 +74,10 @@ wss.on('connection', (ws) => {
       websiteSocket = null; // Clear the reference so it can reconnect
     }
   });
+  // Clear interval when connection closes
+  ws.on('close', () => {
+    clearInterval(pingIntervalId);
+  });
 });
 
 function handleMessages(socket, data){
@@ -87,6 +100,8 @@ function handleMessages(socket, data){
         sendQuestion();
         break;
     case 'check_answer':
+        questionActive = false;
+        questionWasSent = false;
         // Extract tag_id from the message
         const tagID = data.tag_id;
         console.log('Received tag ID from ESP32:', tagID);
