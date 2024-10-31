@@ -24,6 +24,11 @@ let websiteSocket = null;
  // For simplicity, let's say the current correct answer is stored here
  let correctAnswer = 'a12345';  // The correct RFID tag ID for the current question
 
+ // Track whether there's an active question
+ let questionActive = false;
+ let questionWasSent = false;
+ let cuurentQuestionData;
+
 wss.on('connection', (ws) => {
   console.log('Client connected via WebSocket');
     
@@ -37,7 +42,9 @@ wss.on('connection', (ws) => {
     if (data.type === 'esp32') {
       esp32Socket = ws;
       console.log('ESP32 connected.');
-
+      if (questionActive && !questionWasSent){
+        sendQuestion();
+      }
     } else if (data.type === 'website') {
       websiteSocket = ws;
       console.log('Website connected.');
@@ -74,11 +81,10 @@ function handleMessages(socket, data){
     case 'start_input':
         console.log('Forwarding command to start device input mode');
         // Broadcast the command to the ESP32 (assuming ESP32 is also connected)
-        wss.clients.forEach(client => {
-            if (client !== socket && client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify({ command: 'start_input', message: data.message }));
-            }
-        });
+        questionActive = true;
+        questionWasSent = false;
+        cuurentQuestionData = data;
+        sendQuestion();
         break;
     case 'check_answer':
         // Extract tag_id from the message
@@ -127,6 +133,22 @@ function handleMessages(socket, data){
     default:
         console.log('Unknown command:', data.command);
         break;
+  }
+}
+
+// send the question to the tiki devide
+function sendQuestion(){
+  questionActive = true;
+  questionWasSent = false;
+  if (esp32Socket && esp32Socket.readyState === WebSocket.OPEN){
+    esp32Socket.send(JSON.stringify({ 
+      command: 'start_input',
+      message: cuurentQuestionData.message
+    }));
+    questionWasSent = true;
+    console.log('sent to esp32.');
+  } else {
+    console.log('esp32 closed.');
   }
 }
 
