@@ -112,7 +112,7 @@ function handleMessages(socket, data){
         if (esp32Socket && esp32Socket.readyState === WebSocket.OPEN){
           esp32Socket.send(JSON.stringify({ 
             command: 'answer_result',
-            correct: isCorrect 
+            correct: isCorrect
           }));
           console.log('sent to esp32.');
         } else {
@@ -123,7 +123,8 @@ function handleMessages(socket, data){
           websiteSocket.send(JSON.stringify({ 
             type: 'answer_result',
             correct: isCorrect, 
-            data: "dummy"
+            data: "dummy",
+            answer: tagID
           }));
           console.log('sent to website.');
         } else {
